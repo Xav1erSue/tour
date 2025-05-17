@@ -224,23 +224,10 @@ export const useHighlight = (props: UseHighlightProps) => {
 
   // 添加窗口大小变化的监听
   useEffect(() => {
-    // 创建一个防抖函数，避免频繁更新
-    let resizeTimeout: ReturnType<typeof setTimeout>;
-
-    const handleResize = () => {
-      clearTimeout(resizeTimeout);
-      resizeTimeout = setTimeout(() => {
-        updateHighlight();
-      }, 100);
-    };
-
-    // 添加窗口大小变化的监听
+    const handleResize = () => updateHighlight();
     context.addEventListener(window, 'resize', handleResize);
-
-    // 清除监听
     return () => {
       context.removeEventListener(window, 'resize', handleResize);
-      clearTimeout(resizeTimeout);
     };
   }, [updateHighlight, context]);
 
