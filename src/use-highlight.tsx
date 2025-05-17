@@ -32,8 +32,6 @@ export const useHighlight = (props: UseHighlightProps) => {
     middleware: [flip(), offset(15)],
   });
 
-  console.log(placement);
-
   useEffect(() => {
     if (!popoverContainerRef.current) return;
     Object.assign(popoverContainerRef.current.style, floatingStyles);
