@@ -4,16 +4,24 @@ import { TourContext, TourContextType, TourStep, useTour } from 'tour';
 import { Card } from './components';
 
 const contextValue: Required<TourContextType<HTMLElement>> = {
+  overlayContainerId: 'tour-overlay-container',
+  popoverContainerId: 'tour-popover-container',
   createRoot,
-  getTourContainer: () => document.body,
-  overlayContainerId: 'tour-overlay-container', // need to be unique
-  popoverContainerId: 'tour-popover-container', // need to be unique
-  createElement: () => document.createElement('div'),
-  appendChild: (parentNode, node) => parentNode.appendChild(node),
   getElementById: (id) => document.getElementById(id),
   getStagePosition: (node) => node.getBoundingClientRect(),
   getWindowInnerWidth: () => window.innerWidth,
   getWindowInnerHeight: () => window.innerHeight,
+  createElement: () => document.createElement('div'),
+  appendChild: (parentNode, targetNode) => parentNode.appendChild(targetNode),
+  getTourContainer: () => document.body,
+  setStyle: (node, styles) => Object.assign(node.style, styles),
+  getParentElement: (node) => node.parentElement,
+  addEventListener: (node, eventName, handler) => {
+    node.addEventListener(eventName, handler);
+  },
+  removeEventListener: (node, eventName, handler) => {
+    node.removeEventListener(eventName, handler);
+  },
 };
 
 const steps: TourStep[] = [

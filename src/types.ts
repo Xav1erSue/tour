@@ -28,6 +28,34 @@ export interface TourContextType<Node = HTMLElement> {
   overlayContainerId: string;
   /** popover 容器 id */
   popoverContainerId: string;
+
+  /** 设置元素样式 */
+  setStyle: (node: Node, styles: React.CSSProperties) => void;
+  /** 获取元素父节点 */
+  getParentElement: (node: Node) => Node | null;
+  /** 添加事件监听 */
+  addEventListener: (
+    node: Node | Window,
+    eventName: string,
+    handler: () => void,
+  ) => void;
+  /** 移除事件监听 */
+  removeEventListener: (
+    node: Node | Window,
+    eventName: string,
+    handler: () => void,
+  ) => void;
+}
+
+// 抽象观察器接口
+export interface ResizeObserverType {
+  observe: (target: any) => void;
+  disconnect: () => void;
+}
+
+export interface MutationObserverType {
+  observe: (target: any, options: any) => void;
+  disconnect: () => void;
 }
 
 export interface StageDefinition {
