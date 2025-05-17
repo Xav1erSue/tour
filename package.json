@@ -1,0 +1,70 @@
+{
+  "name": "tour",
+  "description": "a cross-platform tour guide component",
+  "keywords": [
+    "react",
+    "tour",
+    "guide",
+    "component"
+  ],
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/Xav1erSue/tour.git"
+  },
+  "main": "lib/index.js",
+  "module": "es/index.mjs",
+  "typings": "es/index.d.ts",
+  "private": false,
+  "version": "0.0.1",
+  "author": "Xav1erSue",
+  "license": "MIT",
+  "homepage": "https://tour.xav1er.com",
+  "type": "module",
+  "files": [
+    "es",
+    "lib",
+    "README.md",
+    "LICENSE",
+    "package.json"
+  ],
+  "scripts": {
+    "dev": "vite",
+    "build": "tsc -b && vite build && tsc --project tsconfig.build.json",
+    "test": "tsc --noEmit",
+    "lint": "eslint .",
+    "preview": "vite preview",
+    "docs:dev": "vitepress dev docs",
+    "docs:build": "vitepress build docs",
+    "docs:preview": "vitepress preview docs",
+    "prepublish": "pnpm run build",
+    "release": "np",
+    "clean": "rm -rf lib es"
+  },
+  "dependencies": {
+    "@floating-ui/react": "^0.27.8"
+  },
+  "peerDependencies": {
+    "react": ">= 18.0.0",
+    "react-dom": ">= 18.0.0"
+  },
+  "devDependencies": {
+    "react": "^18.3.1",
+    "react-dom": "^18.3.1",
+    "@eslint/js": "^9.22.0",
+    "@types/node": "^22.14.1",
+    "@types/react": "^18.3.1",
+    "@types/react-dom": "^18.3.1",
+    "@vitejs/plugin-react-swc": "^3.8.0",
+    "eslint": "^9.22.0",
+    "eslint-plugin-import": "^2.31.0",
+    "eslint-plugin-react-hooks": "^5.2.0",
+    "eslint-plugin-react-refresh": "^0.4.19",
+    "globals": "^16.0.0",
+    "np": "^10.2.0",
+    "typescript": "~5.7.2",
+    "typescript-eslint": "^8.26.1",
+    "vite": "^6.3.1",
+    "vitepress": "^1.6.3",
+    "vitepress-demo-plugin": "^1.4.1"
+  }
+}
