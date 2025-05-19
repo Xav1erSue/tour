@@ -31,6 +31,7 @@ export const useHighlight = (props: UseHighlightProps) => {
     getStagePosition,
     getWindowInnerWidth,
     getWindowInnerHeight,
+    getPortalContainer,
   } = useContext(TourContext);
 
   const [placement, setPlacement] = useState<Placement>();
@@ -102,8 +103,10 @@ export const useHighlight = (props: UseHighlightProps) => {
     ],
   );
 
+  const portalContainer = getPortalContainer?.();
+
   const renderOverlay = () => {
-    if (!stagePosition) return null;
+    if (!stagePosition || !portalContainer) return null;
 
     return createPortal(
       <Overlay
@@ -112,12 +115,12 @@ export const useHighlight = (props: UseHighlightProps) => {
         windowInnerHeight={windowInnerHeight}
         stagePosition={stagePosition}
       />,
-      document.body,
+      portalContainer,
     );
   };
 
   const renderPopover = () => {
-    if (!stagePosition) return null;
+    if (!stagePosition || !portalContainer) return null;
 
     const componentProps = {
       className: popoverClassName,
@@ -129,7 +132,7 @@ export const useHighlight = (props: UseHighlightProps) => {
       <Component {...componentProps} ref={refs.setFloating}>
         {popover}
       </Component>,
-      document.body,
+      portalContainer,
     );
   };
 

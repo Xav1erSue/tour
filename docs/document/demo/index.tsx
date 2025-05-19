@@ -11,6 +11,7 @@ const contextValue: Required<TourContextType> = {
   getStagePosition: (node) => Promise.resolve(node.getBoundingClientRect()),
   getWindowInnerWidth: () => Promise.resolve(window.innerWidth),
   getWindowInnerHeight: () => Promise.resolve(window.innerHeight),
+  getPortalContainer: () => document.body,
 };
 
 const steps: TourStep[] = [

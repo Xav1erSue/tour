@@ -14,6 +14,8 @@ export interface TourContextType<Node = Element> {
   getWindowInnerWidth: () => Promise<number>;
   /** 获取窗口高度 */
   getWindowInnerHeight: () => Promise<number>;
+  /** 获取 portal 容器 */
+  getPortalContainer: () => Node;
 }
 
 export interface StageDefinition {
