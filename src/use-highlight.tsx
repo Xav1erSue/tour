@@ -5,14 +5,17 @@ import {
   offset,
   Placement,
 } from '@floating-ui/react';
-import { useCallback, useContext, useEffect, useRef, useState } from 'react';
+import {
+  useCallback,
+  useContext,
+  useEffect,
+  useLayoutEffect,
+  useRef,
+  useState,
+} from 'react';
 import { TourContext } from './context';
 import Overlay from './overlay';
-import {
-  MutationObserverType,
-  ResizeObserverType,
-  UseHighlightProps,
-} from './types';
+import { UseHighlightProps } from './types';
 
 export const useHighlight = (props: UseHighlightProps) => {
   const { onDestroy } = props;
@@ -29,13 +32,12 @@ export const useHighlight = (props: UseHighlightProps) => {
   const popoverContainerRef = useRef<any>();
 
   // 添加状态存储当前高亮的元素ID和弹窗内容
-  const currentHighlightIdRef = useRef<string | null>(null);
   const currentPopoverRef = useRef<React.ReactNode | null>(null);
   const currentPlacementRef = useRef<Placement | undefined>();
 
   // 添加状态存储观察器
-  const resizeObserverRef = useRef<ResizeObserverType | null>(null);
-  const mutationObserverRef = useRef<MutationObserverType | null>(null);
+  const resizeObserverRef = useRef<ResizeObserver | null>(null);
+  const mutationObserverRef = useRef<MutationObserver | null>(null);
 
   const [placement, setPlacement] = useState<Placement>();
 
@@ -72,7 +74,8 @@ export const useHighlight = (props: UseHighlightProps) => {
     popoverRootRef.current?.unmount?.();
 
     // 清除当前高亮的元素ID和弹窗内容
-    currentHighlightIdRef.current = null;
+    refs.setReference(null);
+    refs.setFloating(null);
     currentPopoverRef.current = null;
     currentPlacementRef.current = undefined;
 
@@ -80,7 +83,7 @@ export const useHighlight = (props: UseHighlightProps) => {
     cleanupObservers();
 
     onDestroyRef.current?.();
-  }, [cleanupObservers]);
+  }, [refs, cleanupObservers]);
 
   // 抽离渲染蒙层和弹窗的共同逻辑
   const renderOverlayAndPopover = useCallback(
@@ -100,13 +103,9 @@ export const useHighlight = (props: UseHighlightProps) => {
         return console.error(`windowInnerHeight is not found!`);
       }
 
-      // 设置引用元素
-      refs.setReference(targetNode);
-
       // 渲染蒙层
       overlayRootRef.current?.render?.(
         <Overlay
-          onClick={destroy}
           className="tour-overlay"
           windowInnerWidth={windowInnerWidth}
           windowInnerHeight={windowInnerHeight}
@@ -118,21 +117,18 @@ export const useHighlight = (props: UseHighlightProps) => {
       popoverRootRef.current?.render?.(
         <div className="tour-popover">{popover}</div>,
       );
-
-      return true;
     },
-    [context, refs, destroy],
+    [context],
   );
 
-  // 更新蒙层和弹窗的位置和尺寸
   const updateHighlight = useCallback(() => {
-    if (!currentHighlightIdRef.current || !currentPopoverRef.current) return;
-
-    const targetNode = context.getElementById(currentHighlightIdRef.current);
-    if (!targetNode) return;
-
-    renderOverlayAndPopover(targetNode, currentPopoverRef.current);
-  }, [context, renderOverlayAndPopover]);
+    if (refs.reference.current && currentPopoverRef.current) {
+      renderOverlayAndPopover(
+        refs.reference.current,
+        currentPopoverRef.current,
+      );
+    }
+  }, [refs, renderOverlayAndPopover]);
 
   // 设置观察器监听元素变化
   const setupObservers = useCallback(
@@ -141,23 +137,20 @@ export const useHighlight = (props: UseHighlightProps) => {
       cleanupObservers();
 
       // 创建 ResizeObserver 监听元素大小变化
-      resizeObserverRef.current = new ResizeObserver(() => {
-        updateHighlight();
-      });
+      resizeObserverRef.current = new ResizeObserver(updateHighlight);
       resizeObserverRef.current.observe(targetNode);
 
       // 创建 MutationObserver 监听元素属性变化（如位置、样式等）
       mutationObserverRef.current = new MutationObserver((mutations) => {
-        const shouldUpdate = mutations.some(
-          (mutation) =>
-            mutation.type === 'attributes' &&
-            (mutation.attributeName === 'style' ||
-              mutation.attributeName === 'class'),
-        );
+        const shouldUpdate = mutations.some((mutation) => {
+          if (mutation.type !== 'attributes') return false;
+          return (
+            mutation.attributeName === 'style' ||
+            mutation.attributeName === 'class'
+          );
+        });
 
-        if (shouldUpdate) {
-          updateHighlight();
-        }
+        if (shouldUpdate) updateHighlight();
       });
 
       mutationObserverRef.current.observe(targetNode, {
@@ -201,7 +194,10 @@ export const useHighlight = (props: UseHighlightProps) => {
       overlayContainer.id = context.overlayContainerId;
       context.setStyle(overlayContainer, {
         zIndex: '1000',
-        position: 'absolute',
+        position: 'fixed',
+        inset: '0',
+        pointerEvents: 'none',
+        opacity: 0.5,
       });
       context.appendChild(rootContainer, overlayContainer);
       overlayContainerRef.current = overlayContainer;
@@ -223,11 +219,16 @@ export const useHighlight = (props: UseHighlightProps) => {
   }, [context, destroy, refs]);
 
   // 添加窗口大小变化的监听
-  useEffect(() => {
+  useLayoutEffect(() => {
     const handleResize = () => updateHighlight();
+
+    // 监听 window resize 事件
     context.addEventListener(window, 'resize', handleResize);
+    context.addEventListener(window, 'scroll', handleResize);
+
     return () => {
       context.removeEventListener(window, 'resize', handleResize);
+      context.removeEventListener(window, 'scroll', handleResize);
     };
   }, [updateHighlight, context]);
 
@@ -239,8 +240,6 @@ export const useHighlight = (props: UseHighlightProps) => {
     ): void => {
       setPlacement(placement);
 
-      // 保存当前高亮的元素ID和弹窗内容
-      currentHighlightIdRef.current = id;
       currentPopoverRef.current = popover;
       currentPlacementRef.current = placement;
 
@@ -248,6 +247,9 @@ export const useHighlight = (props: UseHighlightProps) => {
       if (!targetNode) {
         return console.error(`targetNode is not found!`);
       }
+
+      // 设置引用元素
+      refs.setReference(targetNode);
 
       // 挂载蒙层节点
       const overlayRoot = context.createRoot(overlayContainerRef.current);
@@ -258,14 +260,11 @@ export const useHighlight = (props: UseHighlightProps) => {
       popoverRootRef.current = popoverRoot;
 
       // 渲染蒙层和弹窗
-      const renderSuccess = renderOverlayAndPopover(targetNode, popover);
+      renderOverlayAndPopover(targetNode, popover);
 
-      if (renderSuccess) {
-        // 设置观察器监听元素变化
-        setupObservers(targetNode);
-      }
+      setupObservers(targetNode);
     },
-    [context, renderOverlayAndPopover, setupObservers],
+    [context, refs, renderOverlayAndPopover, setupObservers],
   );
 
   return [highlight, destroy] as const;

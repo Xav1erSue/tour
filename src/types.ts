@@ -47,17 +47,6 @@ export interface TourContextType<Node = HTMLElement> {
   ) => void;
 }
 
-// 抽象观察器接口
-export interface ResizeObserverType {
-  observe: (target: any) => void;
-  disconnect: () => void;
-}
-
-export interface MutationObserverType {
-  observe: (target: any, options: any) => void;
-  disconnect: () => void;
-}
-
 export interface StageDefinition {
   x: number;
   y: number;
@@ -65,8 +54,7 @@ export interface StageDefinition {
   height: number;
 }
 
-export interface OverlayProps
-  extends React.ImgHTMLAttributes<HTMLImageElement> {
+export interface OverlayProps extends React.SVGProps<SVGSVGElement> {
   /** window 宽度，在浏览器环境下是 window.innerWidth */
   windowInnerWidth: number;
   /** window 高度，在浏览器环境下是 window.innerHeight */

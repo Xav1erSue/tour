@@ -10,20 +10,17 @@ const Overlay: React.FC<OverlayProps> = (props) => {
     windowInnerHeight,
   });
 
-  const svgStr = `
+  return (
     <svg
+      {...rest}
+      style={{ width: '100%', height: '100%' }}
       version="1.1"
       xmlns="http://www.w3.org/2000/svg"
-      viewBox="0 0 ${windowInnerWidth} ${windowInnerHeight}"
+      viewBox={`0 0 ${windowInnerWidth} ${windowInnerHeight}`}
     >
-      <path d="${pathString}" />
+      <path d={pathString} />
     </svg>
-  `;
-
-  const svgFile = new Blob([svgStr], { type: 'image/svg+xml' });
-  const svgUrl = URL.createObjectURL(svgFile);
-
-  return <img {...rest} src={svgUrl} />;
+  );
 };
 
 export default Overlay;
