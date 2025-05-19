@@ -1,5 +1,5 @@
 {
-  "name": "tour",
+  "name": "@xav1er/tour",
   "description": "a cross-platform tour guide component",
   "keywords": [
     "react",
@@ -15,7 +15,7 @@
   "module": "es/index.mjs",
   "typings": "es/index.d.ts",
   "private": false,
-  "version": "0.0.1",
+  "version": "0.0.1-beta.1",
   "author": "Xav1erSue",
   "license": "MIT",
   "homepage": "https://tour.xav1er.com",

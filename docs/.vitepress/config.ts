@@ -42,9 +42,7 @@ export default defineConfig({
   lastUpdated: true,
   markdown: {
     config: (md) => {
-      md.use(vitepressDemoPlugin, {
-        demoDir: path.resolve(__dirname, '../../src/demo'),
-      });
+      md.use(vitepressDemoPlugin);
     },
   },
   vite: {

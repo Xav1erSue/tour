@@ -7,7 +7,7 @@ export const useTour = (props: UseTourProps) => {
 
   const [currentStepIndex, setCurrentStepIndex] = useState(-1);
 
-  const [highlight, destroy] = useHighlight({
+  const { highlight, destroy, renderOverlay, renderPopover } = useHighlight({
     onDestroy: () => setCurrentStepIndex(-1),
   });
 
@@ -17,9 +17,10 @@ export const useTour = (props: UseTourProps) => {
     }
   }, [currentStepIndex, steps]);
 
-  const start = useCallback((index: number = 0) => {
-    setCurrentStepIndex(index);
-  }, []);
+  const start = useCallback(
+    (index: number = 0) => setCurrentStepIndex(index),
+    [],
+  );
 
   useEffect(() => {
     const currentStep =
@@ -42,5 +43,5 @@ export const useTour = (props: UseTourProps) => {
     highlight(currentStep.id, popover, currentStep.placement);
   }, [currentStepIndex, highlight, steps, next, destroy]);
 
-  return { next, destroy, start };
+  return { next, destroy, start, renderOverlay, renderPopover };
 };

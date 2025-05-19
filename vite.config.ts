@@ -7,11 +7,8 @@ export default defineConfig({
   plugins: [react()],
   build: {
     lib: {
-      name: 'lessline',
-      entry: {
-        index: 'src/index.ts',
-        style: 'src/index.less',
-      },
+      name: 'tour',
+      entry: 'src/index.ts',
       formats: ['es', 'cjs'],
     },
     rollupOptions: {
@@ -43,7 +40,7 @@ export default defineConfig({
   },
   resolve: {
     alias: {
-      lessline: path.resolve(__dirname, 'src/index.ts'),
+      tour: path.resolve(__dirname, 'src/index.ts'),
     },
   },
 });

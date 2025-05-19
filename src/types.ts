@@ -1,50 +1,19 @@
 import { Placement } from '@floating-ui/react';
 
-interface Root {
-  /** 将组件渲染到节点中 */
-  render: (component: React.ReactNode) => void;
-  /** 卸载节点 */
-  unmount: () => void;
-}
-
-export interface TourContextType<Node = HTMLElement> {
-  /** 创建根节点方法 */
-  createRoot: (targetNode: Node) => Root;
+export interface TourContextType<Node = Element> {
+  component: keyof JSX.IntrinsicElements;
+  /** 弹窗类名 */
+  popoverClassName?: string;
+  /** 遮罩层类名 */
+  overlayClassName?: string;
   /** 获取节点方法 */
-  getElementById: (id: string) => Node | null;
+  getElementById: (id: string) => Promise<Node | null>;
   /** 获取 stage 位置方法 */
-  getStagePosition: (node: Node) => StageDefinition | null;
+  getStagePosition: (node: Node) => Promise<StageDefinition | null>;
   /** 获取窗口宽度 */
-  getWindowInnerWidth: () => number;
+  getWindowInnerWidth: () => Promise<number>;
   /** 获取窗口高度 */
-  getWindowInnerHeight: () => number;
-  /** 创建元素方法 */
-  createElement: () => Node;
-  /** 添加子节点方法 */
-  appendChild: (parentNode: Node, targetNode: Node) => void;
-  /** 获取 tour 组件挂载的容器 */
-  getTourContainer: () => Node | null;
-  /** overlay 容器 id */
-  overlayContainerId: string;
-  /** popover 容器 id */
-  popoverContainerId: string;
-
-  /** 设置元素样式 */
-  setStyle: (node: Node, styles: React.CSSProperties) => void;
-  /** 获取元素父节点 */
-  getParentElement: (node: Node) => Node | null;
-  /** 添加事件监听 */
-  addEventListener: (
-    node: Node | Window,
-    eventName: string,
-    handler: () => void,
-  ) => void;
-  /** 移除事件监听 */
-  removeEventListener: (
-    node: Node | Window,
-    eventName: string,
-    handler: () => void,
-  ) => void;
+  getWindowInnerHeight: () => Promise<number>;
 }
 
 export interface StageDefinition {
@@ -54,7 +23,9 @@ export interface StageDefinition {
   height: number;
 }
 
-export interface OverlayProps extends React.SVGProps<SVGSVGElement> {
+export interface OverlayProps {
+  /** 类名 */
+  className?: string;
   /** window 宽度，在浏览器环境下是 window.innerWidth */
   windowInnerWidth: number;
   /** window 高度，在浏览器环境下是 window.innerHeight */
@@ -84,6 +55,7 @@ export interface TourStep {
   id: string;
   /** 高亮元素的弹窗内容 */
   popover: React.ReactNode | ((context: TourStepContext) => React.ReactNode);
+  /** 弹窗位置 */
   placement?: Placement;
 }
 
