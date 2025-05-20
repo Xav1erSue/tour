@@ -1,39 +1,12 @@
-import { Placement } from '@floating-ui/react';
+import { Platform } from './platform';
+import { Placement } from './use-floating';
 
-export interface TourContextType<Node = Element> {
-  component: keyof JSX.IntrinsicElements;
-  /** 弹窗类名 */
+export type Promisable<T> = T | Promise<T>;
+
+export interface TourContextType {
+  platform: Platform;
   popoverClassName?: string;
-  /** 遮罩层类名 */
   overlayClassName?: string;
-  /** 获取节点方法 */
-  getElementById: (id: string) => Promise<Node | null>;
-  /** 获取 stage 位置方法 */
-  getStagePosition: (node: Node) => Promise<StageDefinition | null>;
-  /** 获取窗口宽度 */
-  getWindowInnerWidth: () => Promise<number>;
-  /** 获取窗口高度 */
-  getWindowInnerHeight: () => Promise<number>;
-  /** 获取 portal 容器 */
-  getPortalContainer: () => Node;
-}
-
-export interface StageDefinition {
-  x: number;
-  y: number;
-  width: number;
-  height: number;
-}
-
-export interface OverlayProps {
-  /** 类名 */
-  className?: string;
-  /** window 宽度，在浏览器环境下是 window.innerWidth */
-  windowInnerWidth: number;
-  /** window 高度，在浏览器环境下是 window.innerHeight */
-  windowInnerHeight: number;
-  /** stage 位置 */
-  stagePosition: StageDefinition;
 }
 
 export interface UseHighlightProps {

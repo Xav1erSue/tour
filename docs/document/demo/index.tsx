@@ -1,23 +1,56 @@
 import React from 'react';
 import { Card } from './components';
-import { TourContext, TourContextType, TourStep, useTour } from '../../../src';
+import {
+  TourContext,
+  TourStep,
+  useTour,
+  Platform,
+  VirtualElement,
+} from '../../../src';
 import './styles.css';
 
-const contextValue: Required<TourContextType> = {
-  component: 'div',
-  popoverClassName: 'tour-popover',
-  overlayClassName: 'tour-overlay',
-  getElementById: (id) => Promise.resolve(document.getElementById(id)),
-  getStagePosition: (node) => Promise.resolve(node.getBoundingClientRect()),
-  getWindowInnerWidth: () => Promise.resolve(window.innerWidth),
-  getWindowInnerHeight: () => Promise.resolve(window.innerHeight),
-  getPortalContainer: () => document.body,
-};
+class PlatformH5 extends Platform {
+  window = window;
+
+  getElementById(id: string) {
+    return document.getElementById(id) as VirtualElement;
+  }
+
+  getElementRectById(id: string) {
+    const element = document.getElementById(id);
+    if (!element) {
+      return null;
+    }
+    return element.getBoundingClientRect();
+  }
+
+  createElement(): React.ReactElement {
+    return <div />;
+  }
+
+  getDevicePixelRatio() {
+    return window.devicePixelRatio;
+  }
+
+  onResize(callback: () => void) {
+    window.addEventListener('resize', callback);
+    return {
+      cleanup: () => window.removeEventListener('resize', callback),
+    };
+  }
+
+  onScroll(callback: () => void) {
+    window.addEventListener('scroll', callback);
+    return {
+      cleanup: () => window.removeEventListener('scroll', callback),
+    };
+  }
+}
 
 const steps: TourStep[] = [
   {
     id: 'step-1',
-    placement: 'bottom',
+    placement: 'bottom-start',
     popover: ({ next, destroy }) => (
       <Card
         title="step 1"
@@ -32,7 +65,7 @@ const steps: TourStep[] = [
   },
   {
     id: 'step-2',
-    placement: 'bottom',
+    placement: 'bottom-start',
     popover: ({ next, destroy }) => (
       <Card
         title="step 2"
@@ -47,7 +80,7 @@ const steps: TourStep[] = [
   },
   {
     id: 'step-3',
-    placement: 'bottom',
+    placement: 'bottom-start',
     popover: ({ destroy }) => (
       <Card
         title="step 3"
@@ -76,7 +109,7 @@ const Demo: React.FC = () => {
 
 const App: React.FC = () => {
   return (
-    <TourContext.Provider value={contextValue}>
+    <TourContext.Provider value={{ platform: new PlatformH5() }}>
       <Demo />
     </TourContext.Provider>
   );

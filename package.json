@@ -40,16 +40,11 @@
     "release": "np",
     "clean": "rm -rf lib es"
   },
-  "dependencies": {
-    "@floating-ui/react": "^0.27.8"
-  },
   "peerDependencies": {
     "react": ">= 18.0.0",
     "react-dom": ">= 18.0.0"
   },
   "devDependencies": {
-    "react": "^18.3.1",
-    "react-dom": "^18.3.1",
     "@eslint/js": "^9.22.0",
     "@types/node": "^22.14.1",
     "@types/react": "^18.3.1",
@@ -61,6 +56,8 @@
     "eslint-plugin-react-refresh": "^0.4.19",
     "globals": "^16.0.0",
     "np": "^10.2.0",
+    "react": "^18.3.1",
+    "react-dom": "^18.3.1",
     "typescript": "~5.7.2",
     "typescript-eslint": "^8.26.1",
     "vite": "^6.3.1",

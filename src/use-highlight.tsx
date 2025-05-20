@@ -1,21 +1,17 @@
-import {
-  useFloating,
-  autoUpdate,
-  flip,
-  offset,
-  Placement,
-} from '@floating-ui/react';
-import {
+import React, {
   useCallback,
   useContext,
+  useEffect,
   useLayoutEffect,
   useRef,
   useState,
 } from 'react';
-import { createPortal } from 'react-dom';
 import { TourContext } from './context';
 import Overlay from './overlay';
-import { StageDefinition, UseHighlightProps } from './types';
+import { Rect } from './platform';
+import Popover from './popover';
+import { UseHighlightProps } from './types';
+import { flip, offset, Placement, useFloating } from './use-floating';
 
 export const useHighlight = (props: UseHighlightProps) => {
   const { onDestroy } = props;
@@ -23,34 +19,21 @@ export const useHighlight = (props: UseHighlightProps) => {
   const onDestroyRef = useRef(onDestroy);
   onDestroyRef.current = onDestroy;
 
-  const {
-    component: Component = 'div',
-    popoverClassName = 'tour-popover',
-    overlayClassName = 'tour-overlay',
-    getElementById,
-    getStagePosition,
-    getWindowInnerWidth,
-    getWindowInnerHeight,
-    getPortalContainer,
-  } = useContext(TourContext);
+  const { platform } = useContext(TourContext);
 
   const [placement, setPlacement] = useState<Placement>();
-  const [windowInnerWidth, setWindowInnerWidth] = useState(0);
-  const [windowInnerHeight, setWindowInnerHeight] = useState(0);
-  const [stagePosition, setStagePosition] = useState<StageDefinition | null>();
+  const [referenceRect, setReferenceRect] = useState<Rect | null>(null);
   const [popover, setPopover] = useState<React.ReactNode>();
 
-  const { refs, floatingStyles, elements } = useFloating({
-    whileElementsMounted: autoUpdate,
+  const { refs, floatingStyles, update } = useFloating({
     placement,
-    middleware: [flip(), offset(15)],
+    platform,
+    middlewares: [offset({ offsetY: 40, offsetX: -12 }), flip()],
   });
 
   const destroy = useCallback(() => {
+    setReferenceRect(null);
     setPlacement(undefined);
-    setStagePosition(undefined);
-    setWindowInnerWidth(0);
-    setWindowInnerHeight(0);
     setPopover(undefined);
     refs.setReference(null);
     refs.setFloating(null);
@@ -58,24 +41,19 @@ export const useHighlight = (props: UseHighlightProps) => {
   }, [refs]);
 
   useLayoutEffect(() => {
-    const handleResize = () => {
-      if (!elements.domReference) return;
-      getStagePosition?.(elements.domReference).then(setStagePosition);
-      getWindowInnerWidth?.().then(setWindowInnerWidth);
-      getWindowInnerHeight?.().then(setWindowInnerHeight);
+    const handleResize = async () => {
+      if (!refs.reference.current) return;
+      const rect = await platform.getElementRectById(refs.reference.current.id);
+      setReferenceRect(rect);
     };
-    window.addEventListener('resize', handleResize);
-    window.addEventListener('scroll', handleResize);
+
+    const { cleanup: cleanupResize } = platform.onResize(handleResize);
+    const { cleanup: cleanupScroll } = platform.onScroll(handleResize);
     return () => {
-      window.removeEventListener('resize', handleResize);
-      window.removeEventListener('scroll', handleResize);
+      cleanupResize();
+      cleanupScroll();
     };
-  }, [
-    elements.domReference,
-    getStagePosition,
-    getWindowInnerWidth,
-    getWindowInnerHeight,
-  ]);
+  }, [refs.reference, platform, update]);
 
   const highlight = useCallback(
     async (
@@ -83,56 +61,44 @@ export const useHighlight = (props: UseHighlightProps) => {
       popover: React.ReactNode,
       placement: Placement = 'bottom',
     ) => {
-      const targetNode = await getElementById(id);
-      if (!targetNode) {
+      const [targetNode, targetNodeRect] = await Promise.all([
+        platform.getElementById(id),
+        platform.getElementRectById(id),
+      ]);
+      if (!targetNode || !targetNodeRect) {
         return console.error(`targetNode is not found!`);
       }
-      refs.setReference(targetNode);
+      refs.setReference({ ...targetNode, id });
+      setReferenceRect(targetNodeRect);
       setPopover(popover);
       setPlacement(placement);
-      getStagePosition?.(targetNode).then(setStagePosition);
-      getWindowInnerWidth?.().then(setWindowInnerWidth);
-      getWindowInnerHeight?.().then(setWindowInnerHeight);
     },
-    [
-      getElementById,
-      refs,
-      getStagePosition,
-      getWindowInnerWidth,
-      getWindowInnerHeight,
-    ],
+    [refs, platform],
   );
 
-  const portalContainer = getPortalContainer?.();
+  useEffect(() => {
+    update();
+  }, [referenceRect, update, placement]);
 
   const renderOverlay = () => {
-    if (!stagePosition || !portalContainer) return null;
+    if (!referenceRect) return null;
 
-    return createPortal(
+    return (
       <Overlay
-        className={overlayClassName}
-        windowInnerWidth={windowInnerWidth}
-        windowInnerHeight={windowInnerHeight}
-        stagePosition={stagePosition}
-      />,
-      portalContainer,
+        referenceRect={referenceRect}
+        windowInnerWidth={platform.window.innerWidth}
+        windowInnerHeight={platform.window.innerHeight}
+      />
     );
   };
 
   const renderPopover = () => {
-    if (!stagePosition || !portalContainer) return null;
+    if (!referenceRect) return null;
 
-    const componentProps = {
-      className: popoverClassName,
-      style: floatingStyles,
-    };
-
-    return createPortal(
-      // @ts-expect-error 复杂类型
-      <Component {...componentProps} ref={refs.setFloating}>
+    return (
+      <Popover style={floatingStyles} setRef={refs.setFloating}>
         {popover}
-      </Component>,
-      portalContainer,
+      </Popover>
     );
   };
 
