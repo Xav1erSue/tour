@@ -28,7 +28,7 @@ export const useHighlight = (props: UseHighlightProps) => {
   const { refs, floatingStyles, update } = useFloating({
     placement,
     platform,
-    middlewares: [offset({ offsetY: 40, offsetX: -12 }), flip()],
+    middlewares: [offset({}), flip()],
   });
 
   const destroy = useCallback(() => {

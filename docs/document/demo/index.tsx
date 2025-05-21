@@ -50,7 +50,7 @@ class PlatformH5 extends Platform {
 const steps: TourStep[] = [
   {
     id: 'step-1',
-    placement: 'bottom-start',
+    placement: 'right',
     popover: ({ next, destroy }) => (
       <Card
         title="step 1"
@@ -65,7 +65,7 @@ const steps: TourStep[] = [
   },
   {
     id: 'step-2',
-    placement: 'bottom-start',
+    placement: 'right',
     popover: ({ next, destroy }) => (
       <Card
         title="step 2"
@@ -80,7 +80,7 @@ const steps: TourStep[] = [
   },
   {
     id: 'step-3',
-    placement: 'bottom-start',
+    placement: 'right',
     popover: ({ destroy }) => (
       <Card
         title="step 3"

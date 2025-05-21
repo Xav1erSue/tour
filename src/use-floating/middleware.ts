@@ -67,22 +67,24 @@ export const flip = (): Middleware => ({
 
     if (!referenceRect || !floatingRect) return context;
 
-    if (
-      context.side === 'top' &&
-      context.position.y - floatingRect.height <= 0
-    ) {
+    if (context.side === 'top' && context.position.y <= 0) {
       context.side = FLIP_MAP[context.side];
       context.position.y =
-        referenceRect.y - context.position.y + referenceRect.height;
+        referenceRect.y +
+        referenceRect.height +
+        referenceRect.y -
+        context.position.y -
+        floatingRect.height;
     }
 
-    if (
-      context.side === 'left' &&
-      context.position.x - floatingRect.width <= 0
-    ) {
+    if (context.side === 'left' && context.position.x <= 0) {
       context.side = FLIP_MAP[context.side];
       context.position.x =
-        referenceRect.x - context.position.x + referenceRect.width;
+        referenceRect.x +
+        referenceRect.width +
+        referenceRect.x -
+        context.position.x -
+        floatingRect.width;
     }
 
     if (
@@ -92,17 +94,25 @@ export const flip = (): Middleware => ({
     ) {
       context.side = FLIP_MAP[context.side];
       context.position.y =
-        context.position.y - referenceRect.y + referenceRect.height;
+        referenceRect.y -
+        floatingRect.height -
+        context.position.y +
+        referenceRect.y +
+        referenceRect.height;
     }
 
     if (
       context.side === 'right' &&
-      context.position.x + floatingRect.width >
+      context.position.x + floatingRect.width >=
         context.platform.window.innerWidth
     ) {
       context.side = FLIP_MAP[context.side];
       context.position.x =
-        context.position.x - referenceRect.x + referenceRect.width;
+        referenceRect.x -
+        floatingRect.width -
+        context.position.x +
+        referenceRect.x +
+        referenceRect.width;
     }
 
     return context;

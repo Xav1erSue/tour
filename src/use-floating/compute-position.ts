@@ -33,7 +33,7 @@ export const computePosition = async (
   }
 
   if (side === 'bottom') {
-    y = referenceRect.y;
+    y = referenceRect.y + referenceRect.height;
   }
 
   if (side === 'left') {
