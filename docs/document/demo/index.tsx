@@ -28,6 +28,10 @@ class PlatformH5 extends Platform {
     return <div />;
   }
 
+  createSVGImageElement(src: string) {
+    return <img src={src} />;
+  }
+
   getDevicePixelRatio() {
     return window.devicePixelRatio;
   }
@@ -50,7 +54,7 @@ class PlatformH5 extends Platform {
 const steps: TourStep[] = [
   {
     id: 'step-1',
-    placement: 'right',
+    placement: 'bottom-start',
     popover: ({ next, destroy }) => (
       <Card
         title="step 1"
@@ -65,7 +69,7 @@ const steps: TourStep[] = [
   },
   {
     id: 'step-2',
-    placement: 'right',
+    placement: 'bottom-start',
     popover: ({ next, destroy }) => (
       <Card
         title="step 2"
@@ -80,7 +84,7 @@ const steps: TourStep[] = [
   },
   {
     id: 'step-3',
-    placement: 'right',
+    placement: 'bottom-start',
     popover: ({ destroy }) => (
       <Card
         title="step 3"

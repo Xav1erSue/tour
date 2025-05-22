@@ -1,3 +1,4 @@
+import { encode } from 'js-base64';
 import React, { useContext } from 'react';
 import { TourContext } from './context';
 import { Rect } from './platform';
@@ -62,16 +63,13 @@ const Overlay: React.FC<OverlayProps> = (props) => {
     windowInnerHeight,
   });
 
-  const svgStr = `<svg version="1.1" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 ${windowInnerWidth} ${windowInnerHeight}"><path d="${pathString}" fill="black" /></svg>`;
+  const svgStr = `<svg version="1.1" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 ${windowInnerWidth} ${windowInnerHeight}"><path d="${pathString}" /></svg>`;
 
-  const svgUrl = 'data:image/svg+xml,' + encodeURIComponent(svgStr);
+  const svgUrl = 'data:image/svg+xml;base64,' + encode(svgStr);
 
-  const element = platform.createElement();
+  const element = platform.createSVGImageElement(svgUrl);
 
-  return React.cloneElement(element, {
-    className: overlayClassName,
-    style: { background: `url(${svgUrl})` },
-  });
+  return React.cloneElement(element, { className: overlayClassName });
 };
 
 export default Overlay;

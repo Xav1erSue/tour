@@ -25,6 +25,8 @@ export abstract class Platform {
   abstract getElementRectById(id: string): Promisable<Rect | null>;
   /** 创建元素 */
   abstract createElement(): React.ReactElement;
+  /** 创建 SVG 元素 */
+  abstract createSVGImageElement(src: string): React.ReactElement;
   /** 获取设备像素比 */
   abstract getDevicePixelRatio(): number;
   /** 监听窗口 resize 事件 */
