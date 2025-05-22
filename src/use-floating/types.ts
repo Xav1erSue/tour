@@ -2,7 +2,7 @@ import { VirtualElement, Platform } from '../platform';
 import { Promisable } from '../types';
 
 export type Side = 'top' | 'right' | 'bottom' | 'left';
-export type Align = 'start' | 'end';
+export type Align = 'start' | 'end' | 'center';
 
 /** 位置 */
 export type Placement = `${Side}` | `${Side}-${Align}`;
@@ -18,11 +18,11 @@ export interface MiddlewareContext {
   position: Position;
   platform: Platform;
   side: Side;
-  align: Align | undefined;
+  align: Align;
 }
 
 export interface Middleware<T = any> {
   name: string;
   options: T;
-  fn: (ctx: MiddlewareContext) => Promisable<MiddlewareContext>;
+  fn: (ctx: MiddlewareContext) => Promisable<void>;
 }

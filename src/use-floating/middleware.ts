@@ -44,8 +44,6 @@ export const offset = (options: OffsetOptions): Middleware<OffsetOptions> => ({
         context.position.y = context.position.y + options.offsetY;
       }
     }
-
-    return context;
   },
 });
 
@@ -65,7 +63,7 @@ export const flip = (): Middleware => ({
       context.platform.getElementRectById(context.floating.id),
     ]);
 
-    if (!referenceRect || !floatingRect) return context;
+    if (!referenceRect || !floatingRect) return;
 
     if (context.side === 'top' && context.position.y <= 0) {
       context.side = FLIP_MAP[context.side];
@@ -114,7 +112,5 @@ export const flip = (): Middleware => ({
         referenceRect.x +
         referenceRect.width;
     }
-
-    return context;
   },
 });

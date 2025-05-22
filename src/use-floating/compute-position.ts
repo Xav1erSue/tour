@@ -1,4 +1,11 @@
-import { Align, Middleware, Placement, Position, Side } from './types';
+import {
+  Align,
+  Middleware,
+  MiddlewareContext,
+  Placement,
+  Position,
+  Side,
+} from './types';
 import { VirtualElement, Platform } from '../platform';
 
 export interface ComputePositionOptions {
@@ -26,49 +33,76 @@ export const computePosition = async (
     return { x, y };
   }
 
-  const [side, align] = placement.split('-') as [Side, Align | undefined];
+  const [side = 'bottom', align = 'center'] = placement.split('-') as [
+    Side,
+    Align,
+  ];
 
-  if (side === 'top') {
-    y = referenceRect.y - floatingRect.height;
-  }
+  const sideOffsets: Record<Side, Position> = {
+    top: { x: 0, y: referenceRect.y - floatingRect.height },
+    bottom: { x: 0, y: referenceRect.y + referenceRect.height },
+    left: { x: referenceRect.x - floatingRect.width, y: 0 },
+    right: { x: referenceRect.x + referenceRect.width, y: 0 },
+  };
 
-  if (side === 'bottom') {
-    y = referenceRect.y + referenceRect.height;
-  }
+  const alignOffsets: Record<Align, Record<Side, Position>> = {
+    start: {
+      top: { x: referenceRect.x, y: 0 },
+      bottom: { x: referenceRect.x, y: 0 },
+      left: {
+        x: 0,
+        y: referenceRect.y + (referenceRect.height - floatingRect.height) / 2,
+      },
+      right: {
+        x: 0,
+        y: referenceRect.y + (referenceRect.height - floatingRect.height) / 2,
+      },
+    },
+    end: {
+      top: {
+        x: referenceRect.x + referenceRect.width - floatingRect.width,
+        y: 0,
+      },
+      bottom: {
+        x: referenceRect.x + referenceRect.width - floatingRect.width,
+        y: 0,
+      },
+      left: {
+        x: 0,
+        y: referenceRect.y + (referenceRect.height - floatingRect.height) / 2,
+      },
+      right: {
+        x: 0,
+        y: referenceRect.y + (referenceRect.height - floatingRect.height) / 2,
+      },
+    },
+    center: {
+      top: {
+        x: referenceRect.x + (referenceRect.width - floatingRect.width) / 2,
+        y: 0,
+      },
+      bottom: {
+        x: referenceRect.x + (referenceRect.width - floatingRect.width) / 2,
+        y: 0,
+      },
+      left: {
+        x: 0,
+        y: referenceRect.y + (referenceRect.height - floatingRect.height) / 2,
+      },
+      right: {
+        x: 0,
+        y: referenceRect.y + (referenceRect.height - floatingRect.height) / 2,
+      },
+    },
+  };
 
-  if (side === 'left') {
-    x = referenceRect.x - floatingRect.width;
-  }
+  const sideOffset = sideOffsets[side];
+  const alignOffset = alignOffsets[align][side];
 
-  if (side === 'right') {
-    x = referenceRect.x + referenceRect.width;
-  }
+  x = sideOffset.x + alignOffset.x;
+  y = sideOffset.y + alignOffset.y;
 
-  if (align === 'start') {
-    if (['top', 'bottom'].includes(side)) {
-      x = referenceRect.x;
-    } else {
-      y = referenceRect.y + (referenceRect.height - floatingRect.height) / 2;
-    }
-  }
-
-  if (align === 'end') {
-    if (['top', 'bottom'].includes(side)) {
-      x = referenceRect.x + referenceRect.width - floatingRect.width;
-    } else {
-      y = referenceRect.y + (referenceRect.height - floatingRect.height) / 2;
-    }
-  }
-
-  if (!align) {
-    if (['top', 'bottom'].includes(side)) {
-      x = referenceRect.x + (referenceRect.width - floatingRect.width) / 2;
-    } else {
-      y = referenceRect.y + (referenceRect.height - floatingRect.height) / 2;
-    }
-  }
-
-  let ctx = {
+  const ctx: MiddlewareContext = {
     reference,
     floating,
     position: { x, y },
@@ -78,7 +112,7 @@ export const computePosition = async (
   };
 
   for (const middleware of middlewares) {
-    ctx = await middleware.fn(ctx);
+    await middleware.fn(ctx);
   }
 
   return ctx.position;
